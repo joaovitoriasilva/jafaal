@@ -3,7 +3,8 @@ import string
 import secrets
 
 from pwdlib import PasswordHash
-from pwdlib.hashers.base import HasherInterface
+from pwdlib.hashers.argon2 import Argon2Hasher
+from pwdlib.hashers.bcrypt import BcryptHasher
 
 
 class PasswordPolicyError(ValueError):
@@ -34,7 +35,7 @@ class PasswordHasher:
         ALL (str): Combination of all allowed characters.
 
     Methods:
-        __init__(hasher: HasherInterface | None = None):
+        __init__(hasher: Argon2Hasher | BcryptHasher | None = None):
             Initializes the PasswordHasher with an optional custom hasher.
 
         hash_password(password: str) -> str:
@@ -69,16 +70,18 @@ class PasswordHasher:
     PUNCTUATION = string.punctuation
     ALL = UPPER + LOWER + DIGITS + PUNCTUATION
 
-    def __init__(self, hasher: HasherInterface | None = None):
+    def __init__(self, hasher: Argon2Hasher | BcryptHasher | None = None):
         """
-        Initializes the password handler with a specified hasher.
-
+        Initializes the password hasher with the specified hashing algorithm.
         Args:
-            hasher (HasherInterface | None, optional): An optional hasher instance to use for password hashing.
-                If not provided, a recommended password hash configuration is used.
+            hasher (Argon2Hasher | BcryptHasher | None, optional): The hasher to use for password hashing.
+                If None, a recommended hasher is used by default.
+        Attributes:
+            _password_hash (PasswordHash): The password hash instance configured with the chosen hasher.
         """
+        
         self._password_hash = (
-            PasswordHash.recommended() if hasher is None else PasswordHash(hasher)
+            PasswordHash.recommended() if hasher is None else PasswordHash([hasher])
         )
 
     def hash_password(self, password: str) -> str:
