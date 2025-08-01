@@ -1,6 +1,7 @@
-from datetime import datetime
 from typing import Protocol, TypeVar
 
+# Define a generic TypeVar for user IDs, so schemas and protocols can work with any ID type
+# (e.g., int, UUID, or a custom identifier)
 ID = TypeVar("ID")
 
 
@@ -22,3 +23,8 @@ class UserProtocol(Protocol[ID]):
     hashed_password: str
     is_active: bool
     is_verified: bool
+
+
+# Define a TypeVar for any concrete implementation of UserProtocol,
+# enabling functions and classes to be generic over different user model types
+UP = TypeVar("UP", bound=UserProtocol)
